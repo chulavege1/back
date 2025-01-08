@@ -13,7 +13,7 @@ const PORT = 3001;
 
 // Middleware
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: 'https://6098d7bd.superduper-56w.pages.dev' }));
 
 const PEXELS_API_KEY = process.env.PEXELS_API_KEY;
 const IMAGES_FOLDER = path.resolve(__dirname, 'images');
