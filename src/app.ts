@@ -13,7 +13,9 @@ const PORT = 3001;
 
 // Middleware
 app.use(express.json());
-app.use(cors({ origin: 'https://6098d7bd.superduper-56w.pages.dev' }));
+// app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({ origin: 'https://superduper-kfn5.onrender.com' }));
+
 
 const PEXELS_API_KEY = process.env.PEXELS_API_KEY;
 const IMAGES_FOLDER = path.resolve(__dirname, 'images');
@@ -33,39 +35,39 @@ const downloadImage = async (url: string, filePath: string) => {
   });
 };
 
-// const fetchImagesFromPexels = async (query: string, category: string) => {
-//   try {
-//     const response = await axios.get('https://api.pexels.com/v1/search', {
-//       headers: { Authorization: PEXELS_API_KEY },
-//       params: { query, per_page: 9 },
-//     });
+const fetchImagesFromPexels = async (query: string, category: string) => {
+  try {
+    const response = await axios.get('https://api.pexels.com/v1/search', {
+      headers: { Authorization: PEXELS_API_KEY },
+      params: { query, per_page: 9 },
+    });
 
-//     const folderPath = path.join(IMAGES_FOLDER, category);
-//     if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath, { recursive: true });
+    const folderPath = path.join(IMAGES_FOLDER, category);
+    if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath, { recursive: true });
 
-//     for (const photo of response.data.photos) {
-//       const tags = photo.alt.toLowerCase();
-//       const existingFiles = fs.readdirSync(folderPath);
+    for (const photo of response.data.photos) {
+      const tags = photo.alt.toLowerCase();
+      const existingFiles = fs.readdirSync(folderPath);
 
-//       if (
-//         tags.includes(query.toLowerCase()) &&
-//         !existingFiles.includes(`${crypto.createHash('md5').update(photo.src.medium).digest('hex')}.jpg`)
-//       ) {
-//         const fileName = `${crypto.createHash('md5').update(photo.src.medium).digest('hex')}.jpg`;
-//         const filePath = path.join(folderPath, fileName);
-//         await downloadImage(photo.src.medium, filePath);
-//       }
-//     }
-//   } catch (error) {
-//     console.error(`Error fetching images for category ${category}:`, error);
-//   }
-// };
+      if (
+        tags.includes(query.toLowerCase()) &&
+        !existingFiles.includes(`${crypto.createHash('md5').update(photo.src.medium).digest('hex')}.jpg`)
+      ) {
+        const fileName = `${crypto.createHash('md5').update(photo.src.medium).digest('hex')}.jpg`;
+        const filePath = path.join(folderPath, fileName);
+        await downloadImage(photo.src.medium, filePath);
+      }
+    }
+  } catch (error) {
+    console.error(`Error fetching images for category ${category}:`, error);
+  }
+};
 
-// const initializeImages = async () => {
-//   for (const [key, query] of Object.entries(IMAGE_CATEGORIES)) {
-//     await fetchImagesFromPexels(query, key);
-//   }
-// };
+const initializeImages = async () => {
+  for (const [key, query] of Object.entries(IMAGE_CATEGORIES)) {
+    await fetchImagesFromPexels(query, key);
+  }
+};
 
 app.get('/api/captcha', (req, res) => {
   try {
@@ -130,8 +132,8 @@ app.post('/api/captcha/validate', (req, res) => {
 
 app.use('/images', express.static(IMAGES_FOLDER));
 
-// initializeImages().then(() => {
+initializeImages().then(() => {
   app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
   });
-// });
+});
